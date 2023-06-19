@@ -1,6 +1,5 @@
 'use client';
 import { NextUIProvider } from '@nextui-org/react';
-import GCMChart from './components/gcmchart';
 import GCMSection from './components/gcmsection';
 import Header from './components/header';
 

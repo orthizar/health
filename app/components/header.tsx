@@ -1,3 +1,5 @@
+import React from "react";
+import { Text } from "@nextui-org/react";
 import { Flex } from "./styles/flex";
 
 export default function Header () {
@@ -13,7 +15,7 @@ export default function Header () {
           },
         }}
       >
-      <h1>Health of Silvan Kohler</h1>
+      <Text h1>Health of Silvan Kohler</Text>
     </Flex>
   );
 }

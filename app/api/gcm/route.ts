@@ -3,6 +3,7 @@ import { NextResponse } from "next/server"
 export async function GET(request: Request) {
   const authRes = await fetch('https://api-eu.libreview.io/llu/auth/login', {
     method: 'POST',
+    next: { revalidate: 3600 },
     headers: {
       'Content-Type': 'application/json',
       'product': 'llu.android',
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
   const token = authData.data.authTicket.token
   const connectionsRes = await fetch('https://api-eu.libreview.io/llu/connections', {
     method: 'GET',
+    next: { revalidate: 60 },
     headers: {
       'Content-Type': 'application/json',
       'product': 'llu.android',
@@ -28,7 +30,17 @@ export async function GET(request: Request) {
     },
   })
   const connectionsData = await connectionsRes.json()
-  const gcm = connectionsData.data.glucoseMeasurement
-
-  return NextResponse.json(gcm, { status: 200 })
+  const connectionGraphRes = await fetch('https://api-eu.libreview.io/llu/connections/' + connectionsData.data[0].patientId + '/graph', {
+    method: 'GET',
+    next: { revalidate: 60 },
+    headers: {
+      'Content-Type': 'application/json',
+      'product': 'llu.android',
+      'version': '4.7.0',
+      'authorization': `Bearer ${token}`,
+    },
+  })
+  const connectionGraphData = await connectionGraphRes.json()
+  const graphData = connectionGraphData.data.graphData
+  return NextResponse.json(graphData, { status: 200 })
 }
