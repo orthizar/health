@@ -10,6 +10,8 @@ import {
   PointElement,
   LineElement,
   Tooltip,
+  ChartDataset,
+  Point,
 } from 'chart.js';
 
 import ChartDeferred from 'chartjs-plugin-deferred';
@@ -28,25 +30,29 @@ export const options = {
   updateMode: 'resize',
   plugins: {
     deferred: {
-      xOffset: 150,   // defer until 150px of the canvas width are inside the viewport
-      yOffset: '50%', // defer until 50% of the canvas height are inside the viewport
-      delay: 500      // delay of 500 ms after the canvas is considered inside the viewport
+      xOffset: 150,
+      yOffset: 50,
+      delay: 500
     }
 
   },
   scales: {
     y: {
-      type: 'linear',
       min: 0,
       max: 20,
     },
   },
 };
 
+type ChartData = {
+  labels: string[];
+  datasets: ChartDataset<"line", (number | Point | null)[]>[];
+};
+
 
 export default function GCMSection () {
   const [gcmValue, setGCMValue] = useState(0);
-  const [chartData, setChartData] = useState({});
+  const [chartData, setChartData] = useState({} as ChartData);
 
 
   const fetchData = async () => {
@@ -58,7 +64,7 @@ export default function GCMSection () {
         labels: data.map((item: any) => (new Date(item.Timestamp)).getHours().toString().padStart(2, '0') + ':' + (new Date(item.Timestamp)).getMinutes().toString().padStart(2, '0')),
         datasets: [
           {
-            data: data.map((item: any) => item.Value),
+            data: data.map((item: any) => item.Value as number),
             fill: false,
             borderColor: 'rgb(75, 192, 192)',
             tension: 0.1,
@@ -77,7 +83,7 @@ export default function GCMSection () {
 
     const interval = setInterval(() => {
       fetchData();
-    }, 60000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
