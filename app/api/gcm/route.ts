@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 export async function GET(request: Request) {
   const authRes = await fetch('https://api-eu.libreview.io/llu/auth/login', {
     method: 'POST',
-    next: { revalidate: 3600 },
+    next: { revalidate: 86400 },
     headers: {
       'Content-Type': 'application/json',
       'product': 'llu.android',
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   const token = authData.data.authTicket.token
   const connectionsRes = await fetch('https://api-eu.libreview.io/llu/connections', {
     method: 'GET',
-    next: { revalidate: 60 },
+    next: { revalidate: 86400 },
     headers: {
       'Content-Type': 'application/json',
       'product': 'llu.android',
