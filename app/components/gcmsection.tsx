@@ -1,7 +1,8 @@
-import { Card, Grid, Loading, Text } from "@nextui-org/react";
+import { Card, Grid, Loading, Text, useTheme } from "@nextui-org/react";
 import { useState, useEffect } from 'react';
 import React from 'react';
 import { Flex } from "./styles/flex";
+import { North, NorthEast, South, SouthEast, East } from "@mui/icons-material";
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -36,10 +37,28 @@ export const options = {
     }
 
   },
+  interaction: {
+    intersect: false,
+    mode: 'index' as "index" | "y" | "x" | "dataset" | "point" | "nearest" | undefined,
+  },
   scales: {
     y: {
-      min: 0,
-      max: 20,
+      min: 1,
+      max: 15,
+      grid: {
+        display: false,
+      },
+      border: {
+        display: false
+      },
+    },
+    x: {
+      grid: {
+        display: false,
+      },
+      border: {
+        display: false
+      },
     },
   },
 };
@@ -50,25 +69,58 @@ type ChartData = {
 };
 
 
-export default function GCMSection () {
+const upperLimit = 10;
+const lowerLimit = 3.9;
+
+function getHexFromTheme(themeValue: string) {
+  const match = themeValue.match(/var\((.*?)\)/);
+  if (match) {
+    const cssVar = match[1];
+    return getComputedStyle(document.documentElement).getPropertyValue(cssVar);
+  }
+  return themeValue;
+}
+
+function getColor(y: number, theme?: any) {
+  return y > upperLimit ? getHexFromTheme(theme?.colors.error.value) : y < lowerLimit ? getHexFromTheme(theme?.colors.error.value) : getHexFromTheme(theme?.colors.success.value);
+}
+
+export default function GCMSection() {
+  const { theme } = useTheme();
   const [gcmValue, setGCMValue] = useState(0);
+  const [gcmTrend, setGCMTrend] = useState(0);
   const [chartData, setChartData] = useState({} as ChartData);
 
 
   const fetchData = async () => {
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + '/api/gcm');
+      const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + '/api/gcm', {
+        method: 'GET',
+        next: { revalidate: 60 }
+      });
       const data = await response.json();
-      setGCMValue(data[data.length - 1].Value as number);
+      var gcmTimestamps = data.graphData.map((item: any) => (new Date(item.Timestamp)).getHours().toString().padStart(2, '0') + ':' + (new Date(item.Timestamp)).getMinutes().toString().padStart(2, '0'));
+      gcmTimestamps.push((new Date(data.glucoseMeasurement.Timestamp)).getHours().toString().padStart(2, '0') + ':' + (new Date(data.glucoseMeasurement.Timestamp)).getMinutes().toString().padStart(2, '0'));
+      var gcmValues = data.graphData.map((item: any) => item.Value as number);
+      gcmValues.push(data.glucoseMeasurement.Value as number);
+      setGCMValue(data.glucoseMeasurement.Value as number);
+      setGCMTrend(data.glucoseMeasurement.TrendArrow as number);
       setChartData({
-        labels: data.map((item: any) => (new Date(item.Timestamp)).getHours().toString().padStart(2, '0') + ':' + (new Date(item.Timestamp)).getMinutes().toString().padStart(2, '0')),
+        labels: gcmTimestamps,
         datasets: [
           {
-            data: data.map((item: any) => item.Value as number),
+            data: gcmValues,
             fill: false,
-            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 3,
+            pointRadius: 1,
+            backgroundColor: ctx => getColor(ctx.raw as number, theme),
+            borderColor: ctx => getColor(ctx.raw as number, theme),
+            segment: {
+              borderColor: ctx => getColor(ctx.p0.parsed.y, theme),
+            },
             tension: 0.1,
             yAxisID: 'y',
+            xAxisID: 'x',
           },
         ],
       });
@@ -77,10 +129,8 @@ export default function GCMSection () {
     }
   };
 
-
   useEffect(() => {
     fetchData();
-
     const interval = setInterval(() => {
       fetchData();
     }, 30000);
@@ -93,14 +143,14 @@ export default function GCMSection () {
       direction={'column'}
       align={'center'}
       css={{
-          'pt': '$20',
-          'pb': '$5',
-          'px': '$6',
-          '@md': {
-            px: '$64',
-          },
-        }}
-      >
+        'pt': '$20',
+        'pb': '$5',
+        'px': '$6',
+        '@md': {
+          px: '$64',
+        },
+      }}
+    >
       <Card>
         <Card.Header>
           <Grid.Container css={{ pl: "$6" }}>
@@ -112,9 +162,35 @@ export default function GCMSection () {
             <Grid xs={12}>
               {
                 gcmValue > 0 ? (
-                  <Text css={{ color: "$accents8" }}>{gcmValue} mmol/mol</Text>
+                  <Text css={{ color: "$accents8" }}>{gcmValue} mmol/L</Text>
                 ) : (
-                  <Loading size="sm"/>
+                  <Loading size="sm" />
+                )
+              }
+              {
+                //vertically centered icon
+                gcmTrend == 1 ? (
+                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
+                    <South fontSize="small" />
+                  </Flex>
+                ) : gcmTrend == 2 ? (
+                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
+                    <SouthEast fontSize="small" />
+                  </Flex>
+                ) : gcmTrend == 3 ? (
+                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
+                    <East fontSize="small" />
+                  </Flex>
+                ) : gcmTrend == 4 ? (
+                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
+                    <NorthEast fontSize="small" />
+                  </Flex>
+                ) : gcmTrend == 5 ? (
+                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
+                    <North fontSize="small" />
+                  </Flex>
+                ) : (
+                  <></>
                 )
               }
             </Grid>
@@ -122,11 +198,11 @@ export default function GCMSection () {
         </Card.Header>
         <Card.Divider />
         <Card.Body>
-          { 
+          {
             chartData.labels && chartData.datasets ? (
               <Line options={options} data={chartData} />
             ) : (
-              <Loading size="lg"/>
+              <Loading size="lg" />
             )
           }
         </Card.Body>

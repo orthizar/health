@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   const token = authData.data.authTicket.token
   const connectionsRes = await fetch('https://api-eu.libreview.io/llu/connections', {
     method: 'GET',
-    next: { revalidate: 86400 },
+    next: { revalidate: 60 },
     headers: {
       'Content-Type': 'application/json',
       'product': 'llu.android',
@@ -42,5 +42,8 @@ export async function GET(request: Request) {
   })
   const connectionGraphData = await connectionGraphRes.json()
   const graphData = connectionGraphData.data.graphData
-  return NextResponse.json(graphData, { status: 200 })
+  return NextResponse.json({
+    glucoseMeasurement: connectionsData.data[0].glucoseMeasurement,
+    graphData: graphData,
+  }, { status: 200 })
 }

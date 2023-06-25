@@ -1,13 +1,24 @@
 import React from "react";
-import { Text } from "@nextui-org/react";
+import { Switch, Text, useTheme } from "@nextui-org/react";
 import { Flex } from "./styles/flex";
+import { useTheme as useNextTheme } from 'next-themes'
+import { DarkMode, LightMode } from "@mui/icons-material";
 
-export default function Header () {
+export default function Header() {
+  const { setTheme } = useNextTheme();
+  const { isDark, type } = useTheme();
   return (
-    <Flex
-      direction={'column'}
-      align={'center'}
-      css={{
+    <div>
+      <Switch
+        checked={isDark}
+        onChange={(e) => setTheme(e.target.checked ? 'dark' : 'light')}
+        icon={isDark ? <DarkMode /> : <LightMode />}
+        size='xs'
+      />
+      <Flex
+        direction={'column'}
+        align={'center'}
+        css={{
           'pt': '$20',
           'px': '$6',
           '@md': {
@@ -15,7 +26,8 @@ export default function Header () {
           },
         }}
       >
-      <Text h1>Health of Silvan Kohler</Text>
-    </Flex>
+        <Text h1>Health of Silvan Kohler</Text>
+      </Flex>
+    </div>
   );
 }
