@@ -107,7 +107,10 @@ export default function GCMSection() {
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + '/api/gcm', {
         method: 'GET',
-        next: { revalidate: 60 }
+        next: { revalidate: 60 },
+        headers: {
+          'Cache-Control': 'max-age=0, s-maxage=60, stale-while-revalidate',
+        },
       });
       const data = await response.json();
       // var gcmTimestamps = data.graphData.map((item: any) => (new Date(item.Timestamp)).getHours().toString().padStart(2, '0') + ':' + (new Date(item.Timestamp)).getMinutes().toString().padStart(2, '0'));

@@ -105,7 +105,10 @@ export default function RespirationSection() {
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + '/api/respiration', {
         method: 'GET',
-        next: { revalidate: 1800 }
+        next: { revalidate: 1800 },
+        headers: {
+          'Cache-Control': 'max-age=0, s-maxage=1800, stale-while-revalidate',
+        },
       });
       const data = await response.json();
       var respirationTimestamps = data.respirationValuesArray.map((item: any) => new Date(item[0] as number));

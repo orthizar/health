@@ -105,7 +105,10 @@ export default function HeartRateSection() {
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + '/api/heartrate', {
         method: 'GET',
-        next: { revalidate: 60 }
+        next: { revalidate: 60 },
+        headers: {
+          'Cache-Control': 'max-age=0, s-maxage=60, stale-while-revalidate',
+        },
       });
       const data = await response.json();
       // var heartRateTimestamps = data.heartRateValues.map((item: any) => (new Date(item[0] as number)).getHours().toString().padStart(2, '0') + ':' + (new Date(item[0] as number)).getMinutes().toString().padStart(2, '0'));
