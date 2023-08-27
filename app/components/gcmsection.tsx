@@ -56,10 +56,10 @@ export const options = {
       },
     },
     x: {
-      type: 'time',
+      type: "time" as "time",
       min: Date.now() - 12 * 60 * 60 * 1000,
       max: Date.now(),
-      bounds: 'ticks',
+      bounds: 'ticks' as "ticks" | "data" | "ticks" | undefined,
       includeBounds: true,
       adapters: {
         date: {},
