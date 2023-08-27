@@ -108,7 +108,6 @@ export default function Spo2Section() {
         next: { revalidate: 1800 }
       });
       const data = await response.json();
-      console.log(data)
       var spo2Timestamps = data.spO2HourlyAverages.map((item: any) => new Date(item[0] as number));
       var spo2Values = data.spO2HourlyAverages.map((item: any) => item[1] as number);
       setSpo2Value(spo2Values[spo2Values.length - 1]);
