@@ -6,6 +6,7 @@ import Header from './components/header';
 import { useState, useEffect } from 'react';
 import HeartRateSection from './components/heartratesection';
 import Spo2Section from './components/spo2section';
+import RespirationSection from './components/respirationsection';
 
 const theme = {
   colors: {
@@ -53,6 +54,7 @@ export default function Home() {
             <GCMSection />
             <HeartRateSection />
             <Spo2Section />
+            <RespirationSection />
           </main>
         </NextUIProvider>
       </NextThemesProvider>
