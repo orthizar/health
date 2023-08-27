@@ -4,6 +4,8 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import GCMSection from './components/gcmsection';
 import Header from './components/header';
 import { useState, useEffect } from 'react';
+import HeartRateSection from './components/heartratesection';
+import Spo2Section from './components/spo2section';
 
 const theme = {
   colors: {
@@ -49,6 +51,8 @@ export default function Home() {
           <main>
             <Header />
             <GCMSection />
+            <HeartRateSection />
+            <Spo2Section />
           </main>
         </NextUIProvider>
       </NextThemesProvider>

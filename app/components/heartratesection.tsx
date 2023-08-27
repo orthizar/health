@@ -2,7 +2,6 @@ import { Card, Grid, Loading, Text, useTheme } from "@nextui-org/react";
 import { useState, useEffect } from 'react';
 import React from 'react';
 import { Flex } from "./styles/flex";
-import { North, NorthEast, South, SouthEast, East } from "@mui/icons-material";
 import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-luxon';
 import {
@@ -46,8 +45,8 @@ export const options = {
   },
   scales: {
     y: {
-      min: 1,
-      max: 15,
+      min: 20,
+      max: 200,
       grid: {
         display: false,
       },
@@ -80,8 +79,8 @@ type ChartData = {
 };
 
 
-const upperLimit = 10;
-const lowerLimit = 3.9;
+const upperLimit = 100;
+const lowerLimit = 50;
 
 function getHexFromTheme(themeValue: string) {
   const match = themeValue.match(/var\((.*?)\)/);
@@ -96,33 +95,28 @@ function getColor(y: number, theme?: any) {
   return y > upperLimit ? getHexFromTheme(theme?.colors.error.value) : y < lowerLimit ? getHexFromTheme(theme?.colors.error.value) : getHexFromTheme(theme?.colors.success.value);
 }
 
-export default function GCMSection() {
+export default function HeartRateSection() {
   const { theme } = useTheme();
-  const [gcmValue, setGCMValue] = useState(0);
-  const [gcmTrend, setGCMTrend] = useState(0);
+  const [heartRateValue, setHeartRateValue] = useState(0);
   const [chartData, setChartData] = useState({} as ChartData);
 
 
   const fetchData = async () => {
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + '/api/gcm', {
+      const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + '/api/heartrate', {
         method: 'GET',
         next: { revalidate: 60 }
       });
       const data = await response.json();
-      // var gcmTimestamps = data.graphData.map((item: any) => (new Date(item.Timestamp)).getHours().toString().padStart(2, '0') + ':' + (new Date(item.Timestamp)).getMinutes().toString().padStart(2, '0'));
-      // gcmTimestamps.push((new Date(data.glucoseMeasurement.Timestamp)).getHours().toString().padStart(2, '0') + ':' + (new Date(data.glucoseMeasurement.Timestamp)).getMinutes().toString().padStart(2, '0'));
-      var gcmTimestamps = data.graphData.map((item: any) => new Date(item.Timestamp));
-      gcmTimestamps.push(new Date(data.glucoseMeasurement.Timestamp));
-      var gcmValues = data.graphData.map((item: any) => item.Value as number);
-      gcmValues.push(data.glucoseMeasurement.Value as number);
-      setGCMValue(data.glucoseMeasurement.Value as number);
-      setGCMTrend(data.glucoseMeasurement.TrendArrow as number);
+      // var heartRateTimestamps = data.heartRateValues.map((item: any) => (new Date(item[0] as number)).getHours().toString().padStart(2, '0') + ':' + (new Date(item[0] as number)).getMinutes().toString().padStart(2, '0'));
+      var heartRateTimestamps = data.heartRateValues.map((item: any) => (new Date(item[0] as number)));
+      var heartRateValues = data.heartRateValues.map((item: any) => item[1] as number);
+      setHeartRateValue(heartRateValues[heartRateValues.length - 1]);
       setChartData({
-        labels: gcmTimestamps,
+        labels: heartRateTimestamps,
         datasets: [
           {
-            data: gcmValues,
+            data: heartRateValues,
             fill: false,
             borderWidth: 3,
             pointRadius: 1,
@@ -153,6 +147,7 @@ export default function GCMSection() {
     return () => clearInterval(interval);
   }, []);
 
+  
   return (
     <Flex
       direction={'column'}
@@ -171,41 +166,15 @@ export default function GCMSection() {
           <Grid.Container css={{ pl: "$6" }}>
             <Grid xs={12}>
               <Text h3 css={{ lineHeight: "$xs" }}>
-                GCM
+                Heart rate
               </Text>
             </Grid>
             <Grid xs={12}>
               {
-                gcmValue > 0 ? (
-                  <Text css={{ color: "$accents8" }}>{gcmValue} mmol/L</Text>
+                heartRateValue > 0 ? (
+                  <Text css={{ color: "$accents8" }}>{heartRateValue} BPM</Text>
                 ) : (
                   <Loading size="sm" />
-                )
-              }
-              {
-                //vertically centered icon
-                gcmTrend == 1 ? (
-                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
-                    <South fontSize="small" />
-                  </Flex>
-                ) : gcmTrend == 2 ? (
-                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
-                    <SouthEast fontSize="small" />
-                  </Flex>
-                ) : gcmTrend == 3 ? (
-                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
-                    <East fontSize="small" />
-                  </Flex>
-                ) : gcmTrend == 4 ? (
-                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
-                    <NorthEast fontSize="small" />
-                  </Flex>
-                ) : gcmTrend == 5 ? (
-                  <Flex css={{ alignItems: 'center', marginLeft: '$5' }}>
-                    <North fontSize="small" />
-                  </Flex>
-                ) : (
-                  <></>
                 )
               }
             </Grid>
