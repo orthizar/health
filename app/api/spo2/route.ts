@@ -48,8 +48,8 @@ export async function GET(request: Request) {
   const spo2 = await GCClient.get(url + dateString) as Spo2;
   spo2.userProfilePK = null;
   // Only last 12 hours
-  spo2.spO2HourlyAverages = spo2.spO2HourlyAverages.filter((value) => {
-    return value.entries().next().value[1] > Date.now() - 1000 * 60 * 60 * 12;
+  spo2.spO2HourlyAverages = spo2.spO2HourlyAverages.filter((value: any) => {
+    return value[0] > Date.now() - 1000 * 60 * 60 * 12;
   });
   if (spo2 == null) {
     return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 's-maxage=1, stale-while-revalidate' } })

@@ -36,8 +36,8 @@ export async function GET(request: Request) {
   heartRate.userProfilePK = null;
   heartRate.heartRateValues.push(...heartRate2.heartRateValues);
   // Only last 12 hours  
-  heartRate.heartRateValues = heartRate.heartRateValues.filter((value) => {
-    return value.entries().next().value[1] > Date.now() - 1000 * 60 * 60 * 12;
+  heartRate.heartRateValues = heartRate.heartRateValues.filter((value: any) => {
+    return value[0] > Date.now() - 1000 * 60 * 60 * 12;
   });
   if (heartRate == null) {
     return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 's-maxage=1, stale-while-revalidate' } })
