@@ -147,7 +147,7 @@ export default function HeartRateSection() {
     return () => clearInterval(interval);
   }, []);
 
-  
+
   return (
     <Flex
       direction={'column'}
