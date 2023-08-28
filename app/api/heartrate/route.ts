@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     return value[0] > Date.now() - 1000 * 60 * 60 * 12;
   });
   if (heartRate == null) {
-    return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 's-maxage=1, stale-while-revalidate' } })
+    return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
   }
-  return NextResponse.json(heartRate, { status: 200 })
+  return NextResponse.json(heartRate, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=60, stale-while-revalidate' } })
 }
