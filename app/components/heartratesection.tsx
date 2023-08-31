@@ -56,8 +56,15 @@ export const options = {
     },
     x: {
       type: "time" as "time",
-      min: Date.now() - 12 * 60 * 60 * 1000,
-      max: Date.now(),
+      time: {
+        format: 'HH:mm',
+        unit: 'minute',
+        stepSize: 1,
+        displayFormats: {
+          'minute': 'HH:mm',
+          'hour': 'HH:mm'
+        }
+      },
       bounds: 'ticks' as "ticks" | "data" | "ticks" | undefined,
       includeBounds: true,
       adapters: {
@@ -105,7 +112,10 @@ export default function HeartRateSection() {
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + '/api/heartrate', {
         method: 'GET',
-        next: { revalidate: 60 },
+        next: {
+          revalidate: 60,
+          tags: ['heartrate'],
+        },
         headers: {
           'Cache-Control': 'max-age=0, s-maxage=60, stale-while-revalidate',
         },
@@ -143,8 +153,6 @@ export default function HeartRateSection() {
     fetchData();
     const interval = setInterval(() => {
       fetchData();
-      options.scales.x.min = Date.now() - 12 * 60 * 60 * 1000;
-      options.scales.x.max = Date.now();
     }, 30000);
 
     return () => clearInterval(interval);

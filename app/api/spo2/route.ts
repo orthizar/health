@@ -55,6 +55,6 @@ export async function GET(request: Request) {
   } catch (error) {
     return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
   }
-  
-  return NextResponse.json(spo2, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=60, stale-while-revalidate' } })
+
+  return NextResponse.json(spo2, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=120, stale-while-revalidate' } })
 }
