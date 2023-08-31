@@ -39,14 +39,17 @@ export async function GET(request: Request) {
   const url =
     'https://connect.garmin.com/modern/proxy/wellness-service/wellness/daily/respiration/';
   const dateString = (new Date(Date.now())).toISOString().split('T')[0];
-  const respiration = await GCClient.get(url + dateString) as Respiration;
-  if (respiration == null) {
+  try {
+
+    var respiration = await GCClient.get(url + dateString) as Respiration;
+    respiration.userProfilePK = null;
+    // Only last 12 hours
+    respiration.respirationValuesArray = respiration.respirationValuesArray.filter((value: any) => {
+      return value[1] > 0 && value[0] > Date.now() - 1000 * 60 * 60 * 12;
+    });
+  } catch (error) {
     return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
   }
-  respiration.userProfilePK = null;
-  // Only last 12 hours
-  respiration.respirationValuesArray = respiration.respirationValuesArray.filter((value: any) => {
-    return value[1] > 0 && value[0] > Date.now() - 1000 * 60 * 60 * 12;
-  });
+
   return NextResponse.json(respiration, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=60, stale-while-revalidate' } })
 }
