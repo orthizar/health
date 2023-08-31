@@ -1,9 +1,9 @@
 import { Card, Grid, Loading, Text, useTheme } from "@nextui-org/react";
-import { useState, useEffect } from 'react';
-import React from 'react';
+import { useState, useEffect } from "react";
+import React from "react";
 import { Flex } from "./styles/flex";
-import { Line } from 'react-chartjs-2';
-import 'chartjs-adapter-luxon';
+import { Line } from "react-chartjs-2";
+import "chartjs-adapter-luxon";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,9 +14,9 @@ import {
   ChartDataset,
   Point,
   TimeSeriesScale,
-} from 'chart.js';
+} from "chart.js";
 
-import ChartDeferred from 'chartjs-plugin-deferred';
+import ChartDeferred from "chartjs-plugin-deferred";
 
 ChartJS.register(
   CategoryScale,
@@ -30,7 +30,7 @@ ChartJS.register(
 export const options = {
   responsive: true,
   maintainAspectRatio: false,
-  updateMode: 'resize',
+  updateMode: "resize",
   plugins: {
     deferred: {
       xOffset: 150,
@@ -41,7 +41,7 @@ export const options = {
   },
   interaction: {
     intersect: false,
-    mode: 'index' as "index" | "y" | "x" | "dataset" | "point" | "nearest" | undefined,
+    mode: "index" as "index" | "y" | "x" | "dataset" | "point" | "nearest" | undefined,
   },
   scales: {
     y: {
@@ -57,15 +57,10 @@ export const options = {
     x: {
       type: "time" as "time",
       time: {
-        format: 'HH:mm',
-        unit: 'minute',
+        format: "HH:mm",
         stepSize: 1,
-        displayFormats: {
-          'minute': 'HH:mm',
-          'hour': 'HH:mm'
-        }
       },
-      bounds: 'ticks' as "ticks" | "data" | "ticks" | undefined,
+      bounds: "ticks" as "ticks" | "data" | "ticks" | undefined,
       includeBounds: true,
       adapters: {
         date: {},
@@ -110,18 +105,18 @@ export default function HeartRateSection() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + '/api/heartrate', {
-        method: 'GET',
+      const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + "/api/heartrate", {
+        method: "GET",
         next: {
           revalidate: 60,
-          tags: ['heartrate'],
+          tags: ["heartrate"],
         },
         headers: {
-          'Cache-Control': 'max-age=0, s-maxage=60, stale-while-revalidate',
+          "Cache-Control": "max-age=0, s-maxage=60, stale-while-revalidate",
         },
       });
       const data = await response.json();
-      // var heartRateTimestamps = data.heartRateValues.map((item: any) => (new Date(item[0] as number)).getHours().toString().padStart(2, '0') + ':' + (new Date(item[0] as number)).getMinutes().toString().padStart(2, '0'));
+      // var heartRateTimestamps = data.heartRateValues.map((item: any) => (new Date(item[0] as number)).getHours().toString().padStart(2, "0") + ":" + (new Date(item[0] as number)).getMinutes().toString().padStart(2, "0"));
       var heartRateTimestamps = data.heartRateValues.map((item: any) => (new Date(item[0] as number)));
       var heartRateValues = data.heartRateValues.map((item: any) => item[1] as number);
       setHeartRateValue(heartRateValues[heartRateValues.length - 1]);
@@ -139,13 +134,13 @@ export default function HeartRateSection() {
               borderColor: ctx => getColor(ctx.p0.parsed.y, theme),
             },
             tension: 0.1,
-            yAxisID: 'y',
-            xAxisID: 'x',
+            yAxisID: "y",
+            xAxisID: "x",
           },
         ],
       });
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -161,14 +156,14 @@ export default function HeartRateSection() {
 
   return (
     <Flex
-      direction={'column'}
-      align={'center'}
+      direction={"column"}
+      align={"center"}
       css={{
-        'pt': '$10',
-        'pb': '$10',
-        'px': '$6',
-        '@md': {
-          px: '$64',
+        "pt": "$10",
+        "pb": "$10",
+        "px": "$6",
+        "@md": {
+          px: "$64",
         },
       }}
     >
