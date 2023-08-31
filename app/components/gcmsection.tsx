@@ -37,8 +37,21 @@ export const options = {
       xOffset: 150,
       yOffset: 50,
       delay: 500
-    }
-
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context: any) {
+          var label = context.dataset.label || "";
+          if (label) {
+            label += ": ";
+          }
+          if (context.parsed.y !== null) {
+            label += context.parsed.y + " mmol/L";
+          }
+          return label;
+        },
+      },
+    },
   },
   interaction: {
     intersect: false,
