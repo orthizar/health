@@ -32,6 +32,9 @@ export async function GET(request: Request) {
 
   var userInfo = await GCClient.getUserInfo();
   var heartRate = await GCClient.getHeartRate(new Date(Date.now() - 1000 * 60 * 60 * 24)) as HeartRate;
+  if (heartRate == null) {
+    return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
+  }
   var heartRate2 = await GCClient.getHeartRate(new Date(Date.now())) as HeartRate;
   heartRate.userProfilePK = null;
   heartRate.heartRateValues.push(...heartRate2.heartRateValues);
@@ -39,8 +42,5 @@ export async function GET(request: Request) {
   heartRate.heartRateValues = heartRate.heartRateValues.filter((value: any) => {
     return value[0] > Date.now() - 1000 * 60 * 60 * 12;
   });
-  if (heartRate == null) {
-    return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
-  }
   return NextResponse.json(heartRate, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=60, stale-while-revalidate' } })
 }
