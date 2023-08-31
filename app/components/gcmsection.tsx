@@ -57,10 +57,6 @@ export const options = {
     },
     x: {
       type: "time" as "time",
-      time: {
-        format: "HH:mm",
-        stepSize: 1,
-      },
       bounds: "ticks" as "ticks" | "data" | "ticks" | undefined,
       includeBounds: true,
       adapters: {
