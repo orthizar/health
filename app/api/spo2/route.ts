@@ -3,6 +3,10 @@ import { GarminConnect } from "garmin-connect"
 import { kv } from "@vercel/kv";
 import { Session } from "garmin-connect/dist/garmin/GarminConnect";
 
+// Cache
+export const revalidate = 120 // seconds
+
+
 type Spo2 = {
   userProfilePK: number | null;
   calendarDate: string,
