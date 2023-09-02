@@ -2,8 +2,9 @@ import { NextResponse } from "next/server"
 import { GarminConnect } from "garmin-connect"
 import { kv } from "@vercel/kv";
 import { Session } from "garmin-connect/dist/garmin/GarminConnect";
+import { cache } from "react";
 
-const dynamic = 'force-dynamic';
+export const revalidate = 1800;
 
 type Respiration = {
   lastUpdated: number | null,
@@ -30,7 +31,7 @@ type Respiration = {
   respirationValuesArray: Array<Map<number, number>>,
 }
 
-export async function GET(request: Request) {
+const getRespiration = cache(async () => {
   var GCClient = new GarminConnect({
     username: process.env.GARMIN_USERNAME ?? "",
     password: process.env.GARMIN_PASSWORD ?? "",
@@ -50,8 +51,18 @@ export async function GET(request: Request) {
       return value[1] > 0 && value[0] > Date.now() - 1000 * 60 * 60 * 12;
     });
   } catch (error) {
-    return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
+    return null;
   }
   respiration.lastUpdated = Date.now().valueOf();
+  return respiration;
+})
+
+export async function GET(request: Request) {
+  var respiration = await getRespiration();
+  
+  if (respiration == null) {
+    return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
+  }
+
   return NextResponse.json(respiration, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=1800, stale-while-revalidate' } })
 }

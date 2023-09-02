@@ -2,8 +2,9 @@ import { NextResponse } from "next/server"
 import { GarminConnect } from "garmin-connect"
 import { kv } from "@vercel/kv";
 import { Session } from "garmin-connect/dist/garmin/GarminConnect";
+import { cache } from "react";
 
-const dynamic = 'force-dynamic';
+export const revalidate = 120;
 
 type Spo2 = {
   lastUpdated: number | null,
@@ -36,7 +37,7 @@ type Spo2 = {
   error: string,
 }
 
-export async function GET(request: Request) {
+const getSpo2 = cache(async () => {
   var GCClient = new GarminConnect({
     username: process.env.GARMIN_USERNAME ?? "",
     password: process.env.GARMIN_PASSWORD ?? "",
@@ -55,8 +56,18 @@ export async function GET(request: Request) {
       return value[0] > Date.now() - 1000 * 60 * 60 * 12;
     });
   } catch (error) {
-    return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
+    return null;
   }
   spo2.lastUpdated = Date.now().valueOf();
+  return spo2;
+})
+
+export async function GET(request: Request) {
+  var spo2 = await getSpo2();
+
+  if (spo2 == null) {
+    return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
+  }
+  
   return NextResponse.json(spo2, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=120, stale-while-revalidate' } })
 }
