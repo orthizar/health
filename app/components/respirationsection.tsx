@@ -122,10 +122,6 @@ export default function RespirationSection() {
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + "/api/respiration", {
         method: "GET",
-        next: {
-          revalidate: 120,
-          tags: ["respriation"],
-        },
         headers: {
           "Cache-Control": "max-age=0, s-maxage=120, stale-while-revalidate",
         },

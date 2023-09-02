@@ -122,10 +122,6 @@ export default function HeartRateSection() {
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + "/api/heartrate", {
         method: "GET",
-        next: {
-          revalidate: 60,
-          tags: ["heartrate"],
-        },
         headers: {
           "Cache-Control": "max-age=0, s-maxage=60, stale-while-revalidate",
         },

@@ -3,7 +3,7 @@ import { GarminConnect } from "garmin-connect"
 import { kv } from "@vercel/kv";
 import { Session } from "garmin-connect/dist/garmin/GarminConnect";
 
-export const runtime = 'edge';
+const dynamic = 'force-dynamic';
 
 type Respiration = {
   lastUpdated: number | null,

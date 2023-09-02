@@ -122,10 +122,6 @@ export default function Spo2Section() {
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_SITE_URL + "/api/spo2", {
         method: "GET",
-        next: {
-          revalidate: 1800,
-          tags: ["spo2"],
-        },
         headers: {
           "Cache-Control": "max-age=0, s-maxage=1800, stale-while-revalidate",
         },
