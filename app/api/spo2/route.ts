@@ -4,7 +4,7 @@ import { kv } from "@vercel/kv";
 import { Session } from "garmin-connect/dist/garmin/GarminConnect";
 import { cache } from "react";
 
-export const revalidate = 120;
+export const revalidate = 1800;
 export const dynamic = 'force-dynamic';
 
 type Spo2 = {
@@ -70,5 +70,5 @@ export async function GET(request: Request) {
     return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
   }
 
-  return NextResponse.json(spo2, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=120, stale-while-revalidate' } })
+  return NextResponse.json(spo2, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=1800, stale-while-revalidate' } })
 }
