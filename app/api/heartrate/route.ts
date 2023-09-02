@@ -3,7 +3,10 @@ import { GarminConnect } from "garmin-connect";
 import { kv } from "@vercel/kv";
 import { Session } from "garmin-connect/dist/garmin/GarminConnect";
 
+export const runtime = 'edge';
+
 type HeartRate = {
+  lastUpdated: number | null,
   userProfilePK: number | null;
   calendarDate: string,
   startTimestampGMT: string,
@@ -41,6 +44,6 @@ export async function GET(request: Request) {
   } catch (error) {
     return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
   }
-
+  heartRate.lastUpdated = Date.now().valueOf();
   return NextResponse.json(heartRate, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=60, stale-while-revalidate' } })
 }
