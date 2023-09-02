@@ -10,8 +10,8 @@ export async function GET(request: Request) {
       'version': '4.7.0',
     },
     body: JSON.stringify({
-      "email": process.env.GCM_EMAIL,
-      "password": process.env.GCM_PASSWORD,
+      "email": process.env.LIBREVIEW_EMAIL,
+      "password": process.env.LIBREVIEW_PASSWORD,
     }),
   })
   const authData = await authRes.json()

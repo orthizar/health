@@ -1,7 +1,7 @@
 'use client';
 import { NextUIProvider, createTheme } from '@nextui-org/react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import GCMSection from './components/gcmsection';
+import GlucoseSection from './components/glucosesection';
 import Header from './components/header';
 import { useState, useEffect } from 'react';
 import HeartRateSection from './components/heartratesection';
@@ -51,7 +51,7 @@ export default function Home() {
         <NextUIProvider>
           <main>
             <Header />
-            <GCMSection />
+            <GlucoseSection />
             <HeartRateSection />
             <Spo2Section />
             <RespirationSection />
