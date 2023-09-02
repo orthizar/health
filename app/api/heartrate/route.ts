@@ -4,6 +4,7 @@ import { kv } from "@vercel/kv";
 import { Session } from "garmin-connect/dist/garmin/GarminConnect";
 
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 type HeartRate = {
   lastUpdated: number | null,
