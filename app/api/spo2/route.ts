@@ -35,15 +35,14 @@ type Spo2 = {
 }
 
 export async function GET(request: Request) {
-  const GCClient = new GarminConnect({
+  var GCClient = new GarminConnect({
     username: process.env.GARMIN_USERNAME ?? "",
     password: process.env.GARMIN_PASSWORD ?? "",
   })
   GCClient.onSessionChange(async (session) => {
     await kv.set('garmin_session', session);
   });
-  GCClient.restoreOrLogin(await kv.get('garmin_session') as Session, process.env.GARMIN_USERNAME ?? "", process.env.GARMIN_PASSWORD ?? "");
-  const url =
+  GCClient = await GCClient.restoreOrLogin(await kv.get('garmin_session') as Session, process.env.GARMIN_USERNAME ?? "", process.env.GARMIN_PASSWORD ?? "");  const url =
     'https://connect.garmin.com/modern/proxy/wellness-service/wellness/daily/spo2/';
   const dateString = (new Date(Date.now())).toISOString().split('T')[0];
   try {

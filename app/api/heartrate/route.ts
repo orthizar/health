@@ -19,14 +19,14 @@ type HeartRate = {
 }
 
 export async function GET(request: Request) {
-  const GCClient = new GarminConnect({
+  var GCClient = new GarminConnect({
     username: process.env.GARMIN_USERNAME ?? "",
     password: process.env.GARMIN_PASSWORD ?? "",
   })
   GCClient.onSessionChange(async (session) => {
     await kv.set('garmin_session', session);
   });
-  GCClient.restoreOrLogin(await kv.get('garmin_session') as Session, process.env.GARMIN_USERNAME ?? "", process.env.GARMIN_PASSWORD ?? "");
+  GCClient = await GCClient.restoreOrLogin(await kv.get('garmin_session') as Session, process.env.GARMIN_USERNAME ?? "", process.env.GARMIN_PASSWORD ?? "");
 
 
   try {
