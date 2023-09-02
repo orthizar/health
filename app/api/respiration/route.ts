@@ -5,6 +5,7 @@ import { Session } from "garmin-connect/dist/garmin/GarminConnect";
 import { cache } from "react";
 
 export const revalidate = 1800;
+export const dynamic = 'force-dynamic';
 
 type Respiration = {
   lastUpdated: number | null,
