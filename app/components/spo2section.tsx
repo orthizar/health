@@ -71,6 +71,12 @@ export const options = {
       type: "time" as "time",
       bounds: "ticks" as "ticks" | "data" | "ticks" | undefined,
       includeBounds: true,
+      min: () => {
+        return Date.now().valueOf() - 12 * 60 * 60 * 1000;
+      },
+      max: () => {
+        return Date.now().valueOf();
+      },
       adapters: {
         date: {},
       },
