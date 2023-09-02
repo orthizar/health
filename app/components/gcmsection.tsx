@@ -28,7 +28,7 @@ ChartJS.register(
   ChartDeferred,
   TimeSeriesScale,
 );
-export const options = {
+export const options: any = {
   responsive: true,
   maintainAspectRatio: false,
   updateMode: "resize",
