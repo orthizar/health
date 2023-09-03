@@ -55,5 +55,8 @@ export async function GET(request: Request) {
     return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
   }
 
-  return NextResponse.json(heartRate, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=60, stale-while-revalidate' } })
+  return NextResponse.json({
+    lastUpdated: heartRate.lastUpdated,
+    heartRateValues: heartRate.heartRateValues,
+  }, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=60, stale-while-revalidate' } })
 }

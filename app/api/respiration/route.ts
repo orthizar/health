@@ -42,10 +42,10 @@ const getRespiration = cache(async () => {
   });
   GCClient = await GCClient.restoreOrLogin(await kv.get('garmin_session') as Session, process.env.GARMIN_USERNAME ?? "", process.env.GARMIN_PASSWORD ?? "");  const url =
     'https://connect.garmin.com/modern/proxy/wellness-service/wellness/daily/respiration/';
-  const dateString = (new Date(Date.now())).toISOString().split('T')[0];
   try {
-
-    var respiration = await GCClient.get(url + dateString) as Respiration;
+    var respiration = await GCClient.get(url + ((new Date(Date.now() - 1000 * 60 * 60 * 24)).toISOString().split('T')[0])) as Respiration;
+    var respiration2 = await GCClient.get(url + ((new Date(Date.now())).toISOString().split('T')[0])) as Respiration;
+    respiration.respirationValuesArray.push(...respiration2.respirationValuesArray);
     respiration.userProfilePK = null;
     // Only last 12 hours
     respiration.respirationValuesArray = respiration.respirationValuesArray.filter((value: any) => {
@@ -65,5 +65,8 @@ export async function GET(request: Request) {
     return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
   }
 
-  return NextResponse.json(respiration, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=120, stale-while-revalidate' } })
+  return NextResponse.json({
+    lastUpdated: respiration.lastUpdated,
+    respirationValuesArray: respiration.respirationValuesArray,
+  }, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=120, stale-while-revalidate' } })
 }

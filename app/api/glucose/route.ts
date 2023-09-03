@@ -42,6 +42,7 @@ export async function GET(request: Request) {
   })
   const connectionGraphData = await connectionGraphRes.json()
   const graphData = connectionGraphData.data.graphData
+  
   return NextResponse.json({
     lastUpdated: Date.now().valueOf(),
     glucoseMeasurement: connectionsData.data[0].glucoseMeasurement,

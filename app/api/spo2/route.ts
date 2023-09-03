@@ -48,9 +48,10 @@ const getSpo2 = cache(async () => {
   });
   GCClient = await GCClient.restoreOrLogin(await kv.get('garmin_session') as Session, process.env.GARMIN_USERNAME ?? "", process.env.GARMIN_PASSWORD ?? "");  const url =
     'https://connect.garmin.com/modern/proxy/wellness-service/wellness/daily/spo2/';
-  const dateString = (new Date(Date.now())).toISOString().split('T')[0];
   try {
-    var spo2 = await GCClient.get(url + dateString) as Spo2;
+    var spo2 = await GCClient.get(url + ((new Date(Date.now() - 1000 * 60 * 60 * 24)).toISOString().split('T')[0])) as Spo2;
+    var spo22 = await GCClient.get(url + ((new Date(Date.now())).toISOString().split('T')[0])) as Spo2;
+    spo2.spO2HourlyAverages.push(...spo22.spO2HourlyAverages);
     spo2.userProfilePK = null;
     // Only last 12 hours
     spo2.spO2HourlyAverages = spo2.spO2HourlyAverages.filter((value: any) => {
@@ -70,5 +71,8 @@ export async function GET(request: Request) {
     return NextResponse.json({}, { status: 500, headers: { 'Cache-Control': 'maxage=0, s-maxage=1, stale-while-revalidate' } })
   }
 
-  return NextResponse.json(spo2, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=1800, stale-while-revalidate' } })
+  return NextResponse.json({
+    lastUpdated: spo2.lastUpdated,
+    spO2HourlyAverages: spo2.spO2HourlyAverages,
+  }, { status: 200, headers: { 'Cache-Control': 'maxage=0, s-maxage=1800, stale-while-revalidate' } })
 }
