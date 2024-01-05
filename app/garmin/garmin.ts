@@ -96,15 +96,27 @@ class Garmin {
     if (session.oauth1 && session.oauth2) {
       console.log("Loading session");
       this.GCClient.loadToken(session.oauth1, session.oauth2);
-      this.GCClient.client.checkTokenVaild();
       // this.GCClient.loadTokenByFile("./garmin_session");
-      this.GCClient.client.checkTokenVaild();
-    } else {
-      console.log("New session");
-      this.GCClient = await this.GCClient.login();
-      // this.GCClient.exportTokenToFile("./garmin_session");
-      kv.set("garmin_session", this.GCClient.exportToken());
+      await this.GCClient.client.checkTokenVaild();
+      if (
+        session.oauth2.access_token !==
+        this.GCClient.exportToken().oauth2.access_token
+      ) {
+        console.log("Saving session");
+        kv.set("garmin_session", this.GCClient.exportToken());
+      }
+      if (await this.GCClient.getUserProfile()) {
+        console.log("Session functional");
+        return;
+      } else {
+        console.log("Session invalid");
+      }
     }
+    console.log("New session");
+    this.GCClient = await this.GCClient.login();
+    // this.GCClient.exportTokenToFile("./garmin_session");
+    console.log("Saving session");
+    kv.set("garmin_session", this.GCClient.exportToken());
   }
   async getHeartRate() {
     var heartRate = (await this.GCClient.get(GC_HEART_RATE_URL, {
