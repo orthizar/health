@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-<img src="https://img.shields.io/maintenance/yes/2023" alt="shields">
+<img src="https://img.shields.io/maintenance/yes/2024" alt="shields">
 <img src="https://img.shields.io/github/commit-activity/m/orthizar/health" alt="shields">
 <img src="https://img.shields.io/github/last-commit/orthizar/health" alt="shields">
 </p>
