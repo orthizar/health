@@ -1,12 +1,19 @@
 "use client";
 
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceArea,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
@@ -54,12 +61,8 @@ const chartData = data1.map((value, index) => {
 
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "Glucose",
     color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
@@ -76,8 +79,7 @@ export function GlucoseChart() {
             accessibilityLayer
             data={chartData}
             margin={{
-              left: 12,
-              right: 12,
+              right: 36,
             }}
           >
             <CartesianGrid vertical={false} />
@@ -104,19 +106,100 @@ export function GlucoseChart() {
                 return value.toFixed(0);
               }}
             />
-            <ChartTooltip
-              labelFormatter={(value) => {
-                return DateTime.fromISO(value).toLocaleString(
-                  DateTime.DATETIME_MED_WITH_SECONDS
-                );
+            <ReferenceArea
+              y1={10}
+              y2={1000}
+              fill="var(--chart-bad)"
+              fillOpacity={0.1}
+              ifOverflow="visible"
+            />
+            <ReferenceLine
+              y={10}
+              stroke="var(--chart-bad)"
+              strokeDasharray="3 5"
+              label={{
+                value: "High",
+                position: "insideBottomRight",
+                fill: "var(--chart-bad)",
               }}
+            />
+            <ReferenceArea
+              y1={7}
+              y2={10}
+              fill="var(--chart-warning)"
+              fillOpacity={0.1}
+              ifOverflow="visible"
+            />
+            <ReferenceLine
+              y={7}
+              stroke="var(--chart-warning)"
+              strokeDasharray="3 5"
+              label={{
+                value: "High",
+                position: "insideBottomRight",
+                fill: "var(--chart-warning)",
+              }}
+            />
+            <ReferenceArea
+              y1={4}
+              y2={7}
+              fill="var(--chart-good)"
+              fillOpacity={0.1}
+              ifOverflow="visible"
+            />
+            <ReferenceLine
+              y={4}
+              stroke="var(--chart-bad)"
+              strokeDasharray="3 5"
+              label={{
+                value: "Low",
+                position: "insideTopRight",
+                fill: "var(--chart-bad)",
+              }}
+            />
+            <ReferenceArea
+              y1={0}
+              y2={4}
+              fill="var(--chart-bad)"
+              fillOpacity={0.1}
+              ifOverflow="visible"
+            />
+            <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent />}
+              content={
+                <ChartTooltipContent
+                  labelFormatter={(value) => {
+                    return DateTime.fromISO(value).toLocaleString(
+                      DateTime.DATETIME_MED_WITH_SECONDS
+                    );
+                  }}
+                  formatter={(value, name, item, index) => (
+                    <>
+                      <div
+                        className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-[--color-bg]"
+                        style={
+                          {
+                            "--color-bg": `var(--color-${name})`,
+                          } as React.CSSProperties
+                        }
+                      />
+                      {chartConfig[name as keyof typeof chartConfig]?.label ||
+                        name}
+                      <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
+                        {(value as number).toFixed(1)}
+                        <span className="font-normal text-muted-foreground">
+                          mmol/L
+                        </span>
+                      </div>
+                    </>
+                  )}
+                />
+              }
             />
             <Line
               dataKey="desktop"
               type="monotone"
-              stroke="var(--color-desktop)"
+              stroke="hsl(var(--foreground))"
               strokeWidth={2}
               dot={false}
             />

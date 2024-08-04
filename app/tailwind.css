@@ -29,6 +29,9 @@
     --chart-4: 351 83% 82%;
     --chart-5: 349 77% 62%;
     --radius: 0.5rem;
+    --chart-good: green;
+    --chart-warning: #e3a008;
+    --chart-bad: red;
   }
 
   .dark,
@@ -58,6 +61,9 @@
     --chart-4: 351 83% 82%;
     --chart-5: 352 83% 91%;
     --radius: 0.5rem;
+    --chart-good: green;
+    --chart-warning: #c27803;
+    --chart-bad: red;
   }
 }
 
