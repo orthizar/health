@@ -1,7 +1,6 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -25,7 +24,7 @@ import { DateTime } from "luxon";
 const generateRandomData = (numPoints: number): number[] => {
   const data = [];
   for (let i = 0; i < numPoints; i++) {
-    data.push(Math.random() * 100); // Random values between 0 and 100
+    data.push(Math.random() * 21); // Random values between 0 and 100
   }
   return data;
 };
@@ -92,6 +91,17 @@ export function GlucoseChart() {
                 return DateTime.fromISO(value).toLocaleString(
                   DateTime.TIME_SIMPLE
                 );
+              }}
+            />
+            <YAxis
+              tickLine={true}
+              axisLine={false}
+              tickMargin={8}
+              domain={[0, 21]}
+              ticks={[4, 7, 10, 15, 21]}
+              allowDataOverflow={true}
+              tickFormatter={(value) => {
+                return value.toFixed(0);
               }}
             />
             <ChartTooltip
