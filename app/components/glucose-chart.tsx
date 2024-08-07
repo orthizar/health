@@ -1,14 +1,4 @@
-"use client";
-
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ReferenceArea,
-  ReferenceLine,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -17,56 +7,117 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "~/components/ui/chart";
 
+import { Line } from "react-chartjs-2";
+import "chartjs-adapter-luxon";
+import ChartDeferred from "chartjs-plugin-deferred";
 import { DateTime } from "luxon";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  ChartDataset,
+  Point,
+  TimeSeriesScale,
+  ChartOptions,
+  TooltipItem,
+  ChartTypeRegistry,
+} from "chart.js";
 
-// generate random data with seed (List of objects with timestamp, desktop, mobile)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  ChartDeferred,
+  TimeSeriesScale
+);
 
-const generateRandomData = (numPoints: number): number[] => {
-  const data = [];
-  for (let i = 0; i < numPoints; i++) {
-    data.push(Math.random() * 21); // Random values between 0 and 100
-  }
-  return data;
-};
-
-const smoothData = (data: number[], factor: number): number[] => {
-  const smoothed = [];
-  for (let i = 0; i < data.length; i++) {
-    let sum = 0;
-    for (let j = Math.max(0, i - factor); j <= i; j++) {
-      sum += data[j];
-    }
-    smoothed.push(sum / (i - Math.max(0, i - factor) + 1)); // Moving average
-  }
-  return smoothed;
-};
-
-const data1 = smoothData(generateRandomData(12 * 60), 50);
-
-const chartData = data1.map((value, index) => {
-  return {
-    timestamp: DateTime.local()
-      .minus({ minutes: 12 * 60 - index })
-      .toISO(),
-    desktop: value,
-  };
-});
-
-const chartConfig = {
-  desktop: {
-    label: "Glucose",
-    color: "hsl(var(--chart-1))",
+export const options: ChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  updateMode: "resize",
+  plugins: {
+    deferred: {
+      xOffset: 150,
+      yOffset: 50,
+      delay: 500,
+    },
+    tooltip: {
+      callbacks: {
+        label: function (context: TooltipItem<keyof ChartTypeRegistry>) {
+          let label = context.dataset.label || "";
+          if (label) {
+            label += ": ";
+          }
+          if (context.parsed.y !== null) {
+            label += context.parsed.y + " mmol/L";
+          }
+          return label;
+        },
+      },
+    },
   },
-} satisfies ChartConfig;
+  interaction: {
+    intersect: false,
+    mode: "index" as
+      | "index"
+      | "y"
+      | "x"
+      | "dataset"
+      | "point"
+      | "nearest"
+      | undefined,
+  },
+  scales: {
+    y: {
+      min: 1,
+      max: 15,
+      grid: {
+        display: false,
+      },
+      border: {
+        display: false,
+      },
+    },
+    x: {
+      type: "time" as const,
+      bounds: "ticks" as "ticks" | "data" | "ticks" | undefined,
+      includeBounds: true,
+      min: () => {
+        return Date.now().valueOf() - 12 * 60 * 60 * 1000;
+      },
+      max: () => {
+        return Date.now().valueOf();
+      },
+      adapters: {
+        date: {},
+      },
+      grid: {
+        display: false,
+      },
+      border: {
+        display: false,
+      },
+    },
+  },
+};
 
-export function GlucoseChart() {
+export function GlucoseChart({
+  glucoseData,
+}: {
+  glucoseData: {
+    graphData: Array<{ timestamp: number; glucose?: number; latest?: number }>;
+    latestMeasurement: {
+      timestamp: number;
+      glucose: number;
+    };
+  } | null;
+}) {
   return (
     <Card>
       <CardHeader>
@@ -77,9 +128,9 @@ export function GlucoseChart() {
         <ChartContainer config={chartConfig}>
           <LineChart
             accessibilityLayer
-            data={chartData}
             margin={{
-              right: 36,
+              left: 0,
+              right: 24,
             }}
           >
             <CartesianGrid vertical={false} />
@@ -88,9 +139,10 @@ export function GlucoseChart() {
               tickLine={true}
               axisLine={false}
               tickMargin={8}
-              minTickGap={24}
+              minTickGap={12}
+              interval="equidistantPreserveStart"
               tickFormatter={(value) => {
-                return DateTime.fromISO(value).toLocaleString(
+                return DateTime.fromMillis(value).toLocaleString(
                   DateTime.TIME_SIMPLE
                 );
               }}
@@ -106,72 +158,15 @@ export function GlucoseChart() {
                 return value.toFixed(0);
               }}
             />
-            <ReferenceArea
-              y1={10}
-              y2={1000}
-              fill="var(--chart-bad)"
-              fillOpacity={0.1}
-              ifOverflow="visible"
-            />
-            <ReferenceLine
-              y={10}
-              stroke="var(--chart-bad)"
-              strokeDasharray="3 5"
-              label={{
-                value: "High",
-                position: "insideBottomRight",
-                fill: "var(--chart-bad)",
-              }}
-            />
-            <ReferenceArea
-              y1={7}
-              y2={10}
-              fill="var(--chart-warning)"
-              fillOpacity={0.1}
-              ifOverflow="visible"
-            />
-            <ReferenceLine
-              y={7}
-              stroke="var(--chart-warning)"
-              strokeDasharray="3 5"
-              label={{
-                value: "High",
-                position: "insideBottomRight",
-                fill: "var(--chart-warning)",
-              }}
-            />
-            <ReferenceArea
-              y1={4}
-              y2={7}
-              fill="var(--chart-good)"
-              fillOpacity={0.1}
-              ifOverflow="visible"
-            />
-            <ReferenceLine
-              y={4}
-              stroke="var(--chart-bad)"
-              strokeDasharray="3 5"
-              label={{
-                value: "Low",
-                position: "insideTopRight",
-                fill: "var(--chart-bad)",
-              }}
-            />
-            <ReferenceArea
-              y1={0}
-              y2={4}
-              fill="var(--chart-bad)"
-              fillOpacity={0.1}
-              ifOverflow="visible"
-            />
             <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return DateTime.fromISO(value).toLocaleString(
-                      DateTime.DATETIME_MED_WITH_SECONDS
-                    );
+                  labelFormatter={(value, payload) => {
+                    console.log(value, payload);
+                    return DateTime.fromMillis(
+                      payload[0].payload.timestamp
+                    ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
                   }}
                   formatter={(value, name, item, index) => (
                     <>
@@ -196,11 +191,37 @@ export function GlucoseChart() {
                 />
               }
             />
+
             <Line
-              dataKey="desktop"
+              dataKey="glucose"
+              data={[
+                // {
+                //   timestamp: glucoseData?.graphData.reduce((prev, current) =>
+                //     prev.timestamp > current.timestamp ? prev : current
+                //   ).timestamp,
+                //   glucose: glucoseData?.graphData.reduce((prev, current) =>
+                //     prev.timestamp > current.timestamp ? prev : current
+                //   ).glucose,
+                // },
+                {
+                  timestamp: glucoseData?.latestMeasurement.timestamp,
+                  glucose: glucoseData?.latestMeasurement.glucose,
+                },
+              ]}
               type="monotone"
-              stroke="hsl(var(--foreground))"
-              strokeWidth={2}
+              stroke="hsl(var(--chart-heartrate))"
+              strokeWidth={3}
+              dot={false}
+              strokeDasharray="1 1"
+              name="latest"
+            />
+            <Line
+              dataKey="glucose"
+              name="glucose"
+              data={glucoseData?.graphData}
+              type="monotone"
+              stroke="hsl(var(--chart-glucose))"
+              strokeWidth={3}
               dot={false}
             />
           </LineChart>

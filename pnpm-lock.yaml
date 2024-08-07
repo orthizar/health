@@ -26,6 +26,15 @@ importers:
       '@remix-run/serve':
         specifier: ^2.11.0
         version: 2.11.0(typescript@5.5.4)
+      chart.js:
+        specifier: ^4.4.3
+        version: 4.4.3
+      chartjs-adapter-luxon:
+        specifier: ^1.3.1
+        version: 1.3.1(chart.js@4.4.3)(luxon@3.5.0)
+      chartjs-plugin-deferred:
+        specifier: ^2.0.0
+        version: 2.0.0(chart.js@4.4.3)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -44,6 +53,9 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.3.1
+      react-chartjs-2:
+        specifier: ^5.2.0
+        version: 5.2.0(chart.js@4.4.3)(react@18.3.1)
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
@@ -611,6 +623,9 @@ packages:
 
   '@jspm/core@2.0.1':
     resolution: {integrity: sha512-Lg3PnLp0QXpxwLIAuuJboLeRaIhrgJjeuh797QADg3xz8wGLugQOS5DpsE8A6i6Adgzf+bacllkKZG3J0tGfDw==}
+
+  '@kurkle/color@0.3.2':
+    resolution: {integrity: sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==}
 
   '@mdx-js/mdx@2.3.0':
     resolution: {integrity: sha512-jLuwRlz8DQfQNiUCJR50Y09CGPq3fLtmtUQfVrj79E0JWu3dvsVcxVIcfhR5h0iXu+/z++zDrYeiJqifRynJkA==}
@@ -1471,6 +1486,21 @@ packages:
 
   character-reference-invalid@2.0.1:
     resolution: {integrity: sha512-iBZ4F4wRbyORVsu0jPV7gXkOsGYjGHPmAyv+HiHG8gi5PtC9KI2j1+v8/tlibRvjoWX027ypmG/n0HtO5t7unw==}
+
+  chart.js@4.4.3:
+    resolution: {integrity: sha512-qK1gkGSRYcJzqrrzdR6a+I0vQ4/R+SoODXyAjscQ/4mzuNzySaMCd+hyVxitSY1+L2fjPD1Gbn+ibNqRmwQeLw==}
+    engines: {pnpm: '>=8'}
+
+  chartjs-adapter-luxon@1.3.1:
+    resolution: {integrity: sha512-yxHov3X8y+reIibl1o+j18xzrcdddCLqsXhriV2+aQ4hCR66IYFchlRXUvrJVoxglJ380pgytU7YWtoqdIgqhg==}
+    peerDependencies:
+      chart.js: '>=3.0.0'
+      luxon: '>=1.0.0'
+
+  chartjs-plugin-deferred@2.0.0:
+    resolution: {integrity: sha512-jq6b8Wt23WS6zxiX8oVB1MXq4uaJX2KGTyiqnq6xo4ctZPgFkT/FuIEKpJjsF1WkYv7ZQrqrrRg1fLw6O5ZEfQ==}
+    peerDependencies:
+      chart.js: '>= 3.0.0'
 
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
@@ -3206,6 +3236,12 @@ packages:
     resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
     engines: {node: '>= 0.8'}
 
+  react-chartjs-2@5.2.0:
+    resolution: {integrity: sha512-98iN5aguJyVSxp5U3CblRLH67J8gkfyGNbiK3c+l1QI/G4irHMPQw44aEPmjVag+YKTyQ260NcF82GTQ3bdscA==}
+    peerDependencies:
+      chart.js: ^4.1.1
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+
   react-dom@18.3.1:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
@@ -4397,6 +4433,8 @@ snapshots:
 
   '@jspm/core@2.0.1': {}
 
+  '@kurkle/color@0.3.2': {}
+
   '@mdx-js/mdx@2.3.0':
     dependencies:
       '@types/estree-jsx': 1.0.5
@@ -5412,6 +5450,19 @@ snapshots:
   character-entities@2.0.2: {}
 
   character-reference-invalid@2.0.1: {}
+
+  chart.js@4.4.3:
+    dependencies:
+      '@kurkle/color': 0.3.2
+
+  chartjs-adapter-luxon@1.3.1(chart.js@4.4.3)(luxon@3.5.0):
+    dependencies:
+      chart.js: 4.4.3
+      luxon: 3.5.0
+
+  chartjs-plugin-deferred@2.0.0(chart.js@4.4.3):
+    dependencies:
+      chart.js: 4.4.3
 
   chokidar@3.6.0:
     dependencies:
@@ -7491,6 +7542,11 @@ snapshots:
       http-errors: 2.0.0
       iconv-lite: 0.4.24
       unpipe: 1.0.0
+
+  react-chartjs-2@5.2.0(chart.js@4.4.3)(react@18.3.1):
+    dependencies:
+      chart.js: 4.4.3
+      react: 18.3.1
 
   react-dom@18.3.1(react@18.3.1):
     dependencies:

@@ -12,7 +12,7 @@
     --popover-foreground: 240 10% 3.9%;
     --primary: 346.8 77.2% 49.8%;
     --primary-foreground: 355.7 100% 99%;
-    --secondary: 240 4.8% 95.9%;
+    --secondary: 179, 76%, 42%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 45%;
@@ -23,16 +23,21 @@
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
     --ring: 346.8 77.2% 49.8%;
-    --chart-1: 347 77% 50%;
-    --chart-2: 352 83% 91%;
-    --chart-3: 350 80% 72%;
-    --chart-4: 351 83% 82%;
-    --chart-5: 349 77% 62%;
+    --chart-glucose: 167.3 79.3% 54.5%;
+    --chart-insulin: 211.2 100% 60%;
+    --chart-heartrate: 336.9 68.5% 46.1%;
     --radius: 0.5rem;
-    --chart-good: green;
-    --chart-warning: #e3a008;
-    --chart-bad: red;
   }
+
+  /* 
+#5ae199
+#24333c
+#2fbdc4
+#fafafc
+#f66597
+#df0a87
+
+*/
 
   .dark,
   :root[class~="dark"] {
@@ -42,9 +47,9 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 346.8 77.2% 49.8%;
+    --primary: 342 97% 58%; /* #fc2a6a */
     --primary-foreground: 355.7 100% 99%;
-    --secondary: 240 4.8% 95.9%;
+    --secondary: 167.3 79.3% 54.5%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
@@ -55,15 +60,10 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 221.2 83.2% 53.3%;
-    --chart-1: 347 77% 50%;
-    --chart-2: 349 77% 62%;
-    --chart-3: 350 80% 72%;
-    --chart-4: 351 83% 82%;
-    --chart-5: 352 83% 91%;
+    --chart-glucose: 167.3 79.3% 54.5%;
+    --chart-insulin: 211.2 100% 60%;
+    --chart-heartrate: 336.9 68.5% 46.1%;
     --radius: 0.5rem;
-    --chart-good: green;
-    --chart-warning: #c27803;
-    --chart-bad: red;
   }
 }
 
