@@ -83,9 +83,9 @@ export async function getGlucoseData() {
     TrendMessage: "string";
   } = connectionsData.data[0].glucoseMeasurement;
   const glucoseData: {
-    graphData: Array<{ timestamp: string; glucose: number }>;
+    graphData: Array<{ timestamp: number; glucose: number }>;
     latestMeasurement: {
-      timestamp: string;
+      timestamp: number;
       glucose: number;
     };
   } = {
@@ -94,7 +94,7 @@ export async function getGlucoseData() {
         timestamp: DateTime.fromFormat(
           data.Timestamp,
           "M/d/yyyy h:mm:ss a"
-        ).toISO() as string,
+        ).toMillis() as number,
         glucose: data.Value,
       };
     }),
@@ -102,7 +102,7 @@ export async function getGlucoseData() {
       timestamp: DateTime.fromFormat(
         glucoseMeasurement.Timestamp,
         "M/d/yyyy h:mm:ss a"
-      ).toISO() as string,
+      ).toMillis() as number,
       glucose: glucoseMeasurement.Value,
     },
   };

@@ -1,9 +1,8 @@
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
@@ -11,7 +10,6 @@ import {
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-luxon";
 import ChartDeferred from "chartjs-plugin-deferred";
-import { DateTime } from "luxon";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,13 +17,13 @@ import {
   PointElement,
   LineElement,
   Tooltip,
-  ChartDataset,
-  Point,
   TimeSeriesScale,
   ChartOptions,
   TooltipItem,
   ChartTypeRegistry,
+  ChartData,
 } from "chart.js";
+import { theme } from "~/lib/theme";
 
 ChartJS.register(
   CategoryScale,
@@ -48,14 +46,31 @@ export const options: ChartOptions = {
       delay: 500,
     },
     tooltip: {
+      displayColors: false,
       callbacks: {
-        label: function (context: TooltipItem<keyof ChartTypeRegistry>) {
-          let label = context.dataset.label || "";
-          if (label) {
-            label += ": ";
+        title: function (tooltipItems) {
+          if (
+            tooltipItems[0].dataIndex ===
+            tooltipItems[0].chart.data.datasets[0].data.length - 1
+          ) {
+            return `Prediction for ${tooltipItems[0].label}`;
           }
-          if (context.parsed.y !== null) {
-            label += context.parsed.y + " mmol/L";
+          return tooltipItems[0].label;
+        },
+        label: function (tooltipItem) {
+          let label = "";
+          if (
+            tooltipItem.dataIndex ===
+            tooltipItem.chart.data.datasets[0].data.length - 1
+          ) {
+            label += "~";
+          }
+          // let label = tooltipItem.dataset.label || "";
+          // if (label) {
+          //   label += " ";
+          // }
+          if (tooltipItem.parsed.y !== null) {
+            label += tooltipItem.parsed.y.toFixed(1) + " mmol/L";
           }
           return label;
         },
@@ -64,19 +79,12 @@ export const options: ChartOptions = {
   },
   interaction: {
     intersect: false,
-    mode: "index" as
-      | "index"
-      | "y"
-      | "x"
-      | "dataset"
-      | "point"
-      | "nearest"
-      | undefined,
+    mode: "index",
   },
   scales: {
     y: {
       min: 1,
-      max: 15,
+      max: 21,
       grid: {
         display: false,
       },
@@ -85,15 +93,15 @@ export const options: ChartOptions = {
       },
     },
     x: {
-      type: "time" as const,
-      bounds: "ticks" as "ticks" | "data" | "ticks" | undefined,
+      type: "time",
+      bounds: "ticks",
       includeBounds: true,
       min: () => {
         return Date.now().valueOf() - 12 * 60 * 60 * 1000;
       },
-      max: () => {
-        return Date.now().valueOf();
-      },
+      // max: () => {
+      //   return Date.now().valueOf();
+      // },
       adapters: {
         date: {},
       },
@@ -107,126 +115,101 @@ export const options: ChartOptions = {
   },
 };
 
+function calculateTrend(
+  data: Array<{ timestamp: number; glucose: number }>
+): [number, number] {
+  // linear regression
+  const n = data.length;
+  let sumX = 0;
+  let sumY = 0;
+  let sumXY = 0;
+  let sumXX = 0;
+  for (let i = 0; i < n; i++) {
+    sumX += data[i].timestamp;
+    sumY += data[i].glucose;
+    sumXY += data[i].timestamp * data[i].glucose;
+    sumXX += data[i].timestamp * data[i].timestamp;
+  }
+  const m = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const b = (sumY - m * sumX) / n;
+  return [m, b];
+}
+
 export function GlucoseChart({
   glucoseData,
 }: {
   glucoseData: {
-    graphData: Array<{ timestamp: number; glucose?: number; latest?: number }>;
+    graphData: Array<{ timestamp: number; glucose: number }>;
     latestMeasurement: {
       timestamp: number;
       glucose: number;
     };
   } | null;
 }) {
+  const graphData =
+    glucoseData?.graphData.concat([
+      {
+        timestamp: glucoseData.latestMeasurement.timestamp,
+        glucose: glucoseData.latestMeasurement.glucose,
+      },
+    ]) ?? [];
+  const [m, b] = calculateTrend(graphData) ?? [0, 0];
+  const graphDataWithTrend =
+    graphData.concat([
+      {
+        timestamp: graphData[graphData.length - 1].timestamp + 30 * 60 * 1000,
+        glucose:
+          m * (graphData[graphData.length - 1].timestamp + 30 * 60 * 1000) + b,
+      },
+    ]) ?? [];
+
+  const data: ChartData<"line"> = {
+    labels: graphDataWithTrend.map((data) => data.timestamp) || [],
+    datasets: [
+      {
+        label: "Glucose",
+        data: graphDataWithTrend.map((data) => data.glucose) || [],
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.1,
+        cubicInterpolationMode: "monotone",
+        segment: {
+          borderColor: (ctx) =>
+            ctx.p1DataIndex === graphDataWithTrend.length - 1
+              ? theme.colors.glucoseTrend
+              : theme.colors.glucose,
+          borderDash: (ctx) =>
+            ctx.p1DataIndex === graphDataWithTrend.length - 1 ? [5, 5] : [],
+        },
+      },
+    ],
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Glucose</CardTitle>
-        <CardDescription>Today</CardDescription>
+        <CardDescription>
+          {glucoseData?.latestMeasurement.glucose.toFixed(1)} mmol/L
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <LineChart
-            accessibilityLayer
-            margin={{
-              left: 0,
-              right: 24,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="timestamp"
-              tickLine={true}
-              axisLine={false}
-              tickMargin={8}
-              minTickGap={12}
-              interval="equidistantPreserveStart"
-              tickFormatter={(value) => {
-                return DateTime.fromMillis(value).toLocaleString(
-                  DateTime.TIME_SIMPLE
-                );
-              }}
-            />
-            <YAxis
-              tickLine={true}
-              axisLine={false}
-              tickMargin={8}
-              domain={[0, 21]}
-              ticks={[4, 7, 10, 15, 21]}
-              allowDataOverflow={true}
-              tickFormatter={(value) => {
-                return value.toFixed(0);
-              }}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value, payload) => {
-                    console.log(value, payload);
-                    return DateTime.fromMillis(
-                      payload[0].payload.timestamp
-                    ).toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
-                  }}
-                  formatter={(value, name, item, index) => (
-                    <>
-                      <div
-                        className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-[--color-bg]"
-                        style={
-                          {
-                            "--color-bg": `var(--color-${name})`,
-                          } as React.CSSProperties
-                        }
-                      />
-                      {chartConfig[name as keyof typeof chartConfig]?.label ||
-                        name}
-                      <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
-                        {(value as number).toFixed(1)}
-                        <span className="font-normal text-muted-foreground">
-                          mmol/L
-                        </span>
-                      </div>
-                    </>
-                  )}
-                />
-              }
-            />
-
-            <Line
-              dataKey="glucose"
-              data={[
-                // {
-                //   timestamp: glucoseData?.graphData.reduce((prev, current) =>
-                //     prev.timestamp > current.timestamp ? prev : current
-                //   ).timestamp,
-                //   glucose: glucoseData?.graphData.reduce((prev, current) =>
-                //     prev.timestamp > current.timestamp ? prev : current
-                //   ).glucose,
-                // },
-                {
-                  timestamp: glucoseData?.latestMeasurement.timestamp,
-                  glucose: glucoseData?.latestMeasurement.glucose,
-                },
-              ]}
-              type="monotone"
-              stroke="hsl(var(--chart-heartrate))"
-              strokeWidth={3}
-              dot={false}
-              strokeDasharray="1 1"
-              name="latest"
-            />
-            <Line
-              dataKey="glucose"
-              name="glucose"
-              data={glucoseData?.graphData}
-              type="monotone"
-              stroke="hsl(var(--chart-glucose))"
-              strokeWidth={3}
-              dot={false}
-            />
-          </LineChart>
-        </ChartContainer>
+        <Line options={options} data={data} />
       </CardContent>
+      <CardFooter className="flex-col items-start gap-2 text-sm">
+        <div className="flex gap-2 font-medium leading-none">
+          Trending {m > 0 ? "up" : "down"} by{" "}
+          {Math.abs(
+            m * (graphData[graphData.length - 1].timestamp + 60 * 60 * 1000) +
+              b -
+              graphData[graphData.length - 1].glucose
+          ).toFixed(2)}{" "}
+          mmol/L per hour
+        </div>
+        <div className="leading-none text-muted-foreground">
+          Showing the last 12 hours
+        </div>
+      </CardFooter>
     </Card>
   );
 }

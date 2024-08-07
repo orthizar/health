@@ -16,57 +16,57 @@ export const headers: HeadersFunction = () => ({
 });
 
 export async function loader() {
-  const generateRandomData = (numPoints: number): number[] => {
-    const data = [];
-    for (let i = 0; i < numPoints; i++) {
-      data.push(Math.random() * 21); // Random values between 0 and 100
-    }
-    return data;
-  };
+  // const generateRandomData = (numPoints: number): number[] => {
+  //   const data = [];
+  //   for (let i = 0; i < numPoints; i++) {
+  //     data.push(Math.random() * 21); // Random values between 0 and 100
+  //   }
+  //   return data;
+  // };
 
-  const smoothData = (data: number[], factor: number): number[] => {
-    const smoothed = [];
-    for (let i = 0; i < data.length; i++) {
-      let sum = 0;
-      for (let j = Math.max(0, i - factor); j <= i; j++) {
-        sum += data[j];
-      }
-      smoothed.push(sum / (i - Math.max(0, i - factor) + 1)); // Moving average
-    }
-    return smoothed;
-  };
+  // const smoothData = (data: number[], factor: number): number[] => {
+  //   const smoothed = [];
+  //   for (let i = 0; i < data.length; i++) {
+  //     let sum = 0;
+  //     for (let j = Math.max(0, i - factor); j <= i; j++) {
+  //       sum += data[j];
+  //     }
+  //     smoothed.push(sum / (i - Math.max(0, i - factor) + 1)); // Moving average
+  //   }
+  //   return smoothed;
+  // };
 
-  const glucoseData = smoothData(generateRandomData(12 * 60), 50).map(
-    (value, index) => {
-      return {
-        timestamp: DateTime.local()
-          .minus({ minutes: 12 * 60 - index })
-          .toMillis(),
-        glucose: value,
-      };
-    }
-  );
-
-  const data = {
-    glucoseData: {
-      graphData: glucoseData,
-      latestMeasurement: {
-        timestamp: DateTime.local().plus({ minutes: 20 }).toMillis(),
-        glucose: glucoseData[glucoseData.length - 1].glucose + 3,
-      },
-    },
-  };
-
-  // const [glucoseData] = await Promise.allSettled([getGlucoseData()]);
+  // const glucoseData = smoothData(generateRandomData(12 * 12), 10).map(
+  //   (value, index) => {
+  //     return {
+  //       timestamp: DateTime.local()
+  //         .minus({ minutes: 12 * 60 - index * 5 })
+  //         .toMillis(),
+  //       glucose: value,
+  //     };
+  //   }
+  // );
 
   // const data = {
-  //   glucoseData:
-  //     glucoseData.status === "fulfilled"
-  //       ? "error" in glucoseData.value
-  //         ? null
-  //         : glucoseData.value
-  //       : null,
+  //   glucoseData: {
+  //     graphData: glucoseData,
+  //     latestMeasurement: {
+  //       timestamp: DateTime.local().plus({ minutes: 20 }).toMillis(),
+  //       glucose: glucoseData[glucoseData.length - 1].glucose + 3,
+  //     },
+  //   },
   // };
+
+  const [glucoseData] = await Promise.allSettled([getGlucoseData()]);
+
+  const data = {
+    glucoseData:
+      glucoseData.status === "fulfilled"
+        ? "error" in glucoseData.value
+          ? null
+          : glucoseData.value
+        : null,
+  };
   return data;
 }
 
